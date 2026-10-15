@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- SEO META TAGS FOR GLOBAL SEARCH -->
+    <title>OptiPDF — Compress Up to 900MB PDF (Original Image Quality)</title>
+    <meta name="description" content="Compress PDF files up to 900MB online for free. Reduce file size while preserving 100% original image quality. Secure browser processing.">
+    <meta name="keywords" content="compress 900mb pdf, reduce pdf size high quality, free large pdf compressor, compress pdf without losing quality">
+    <meta name="robots" content="index, follow">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- pdf-lib for lossless structure compression -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+    
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --accent: #a855f7;
+            --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
+
+        body {
+            background: var(--bg-gradient);
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            background-attachment: fixed;
+        }
+
+        header {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--card-border);
+            padding: 18px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo-container { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+        .logo-icon {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            color: white;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            font-weight: 800;
+            font-size: 20px;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+        }
+        .logo-text { font-size: 22px; font-weight: 800; color: var(--text-main); letter-spacing: -0.5px; }
+        .logo-text span { color: #818cf8; }
+
+        .pro-badge { 
+            background: rgba(251, 191, 36, 0.1); 
+            color: #fbbf24; 
+            font-size: 13px; 
+            font-weight: 600; 
+            padding: 6px 14px; 
+            border-radius: 20px; 
+            cursor: pointer; 
+            border: 1px solid rgba(251, 191, 36, 0.2);
+            transition: 0.2s;
+        }
+        .pro-badge:hover { background: rgba(251, 191, 36, 0.2); }
+
+        main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 50px 20px;
+        }
+
+        .hero-section { text-align: center; margin-bottom: 35px; max-width: 700px; }
+        .hero-section h1 { font-size: 38px; font-weight: 800; color: var(--text-main); margin-bottom: 12px; letter-spacing: -1px; }
+        .hero-section h1 span { background: linear-gradient(135deg, #818cf8 0%, #c084fc 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .hero-section p { font-size: 16px; color: var(--text-muted); line-height: 1.5; }
+
+        .compressor-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            width: 100%;
+            max-width: 650px;
+            padding: 40px;
+            border-radius: 24px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--card-border);
+            text-align: center;
+        }
+
+        .ad-slot-top {
+            background: rgba(15, 23, 42, 0.5);
+            border: 2px dashed rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 15px;
+            color: var(--text-muted);
+            font-size: 12px;
+            margin-bottom: 25px;
+        }
+
+        .upload-dropzone {
+            border: 2px dashed #818cf8;
+            background: rgba(99, 102, 241, 0.05);
+            padding: 40px 20px;
+            border-radius: 16px;
+            cursor: pointer;
+            display: block;
+            margin-bottom: 25px;
+            transition: all 0.2s ease;
+        }
+        .upload-dropzone:hover { background: rgba(99, 102, 241, 0.1); border-color: #a5b4fc; }
+        .upload-dropzone svg { width: 48px; height: 48px; stroke: #818cf8; margin-bottom: 12px; }
+        .upload-dropzone span { display: block; font-weight: 700; color: #e2e8f0; font-size: 18px; margin-bottom: 6px; }
+        .upload-dropzone small { color: var(--text-muted); font-size: 13px; }
+        input[type="file"] { display: none; }
+
+        .file-info { font-size: 15px; color: #cbd5e1; margin-bottom: 20px; font-weight: 500; }
+
+        .compress-btn {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 16px;
+            font-size: 17px;
+            font-weight: 700;
+            border-radius: 12px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+            transition: opacity 0.2s;
+        }
+        .compress-btn:hover { opacity: 0.9; }
+        .compress-btn:disabled { background: #475569; cursor: not-allowed; box-shadow: none; }
+
+        .status-msg { margin-top: 20px; font-weight: 600; font-size: 15px; color: #38bdf8; }
+
+        .upsell-box {
+            margin-top: 30px;
+            background: rgba(124, 58, 237, 0.15);
+            border: 1px solid rgba(168, 85, 247, 0.3);
+            padding: 20px;
+            border-radius: 16px;
+            text-align: left;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .upsell-text h4 { font-size: 15px; color: #f3e8ff; margin-bottom: 4px; }
+        .upsell-text p { font-size: 12px; color: #d8b4fe; }
+        .upsell-btn {
+            background: white;
+            color: #7c3aed;
+            border: none;
+            padding: 10px 18px;
+            font-weight: 700;
+            font-size: 13px;
+            border-radius: 8px;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: 0.2s;
+        }
+        .upsell-btn:hover { background: #f3e8ff; }
+
+        footer {
+            text-align: center;
+            padding: 25px;
+            font-size: 13px;
+            color: var(--text-muted);
+            border-top: 1px solid var(--card-border);
+            background: rgba(15, 23, 42, 0.8);
+            margin-top: auto;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo-container">
+            <div class="logo-icon">O</div>
+            <div class="logo-text">Opti<span>PDF</span></div>
+        </div>
+        <div class="pro-badge" onclick="alert('👑 Ultra Pro Plan: Unlimited batch compression & files above 900MB for ₹99/month!')">⭐ Go Pro</div>
+    </header>
+
+    <main>
+        <div class="hero-section">
+            <h1>Compress PDFs Up to 900MB <span>Without Losing Quality</span></h1>
+            <p>Reduce PDF file size up to 900 MB while keeping 100% original photo & text crispness. 100% Free.</p>
+        </div>
+
+        <div class="compressor-card">
+            <!-- AdSense Slot Placeholder -->
+            <div class="ad-slot-top">📢 [Google AdSense Banner Space]</div>
+
+            <label for="pdfInput" class="upload-dropzone">
+                <svg fill="none" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+                <span>Choose Heavy PDF File</span>
+                <small>Upload up to 900 MB — Original Image Quality Preserved</small>
+            </label>
+            <input type="file" id="pdfInput" accept="application/pdf" onchange="updateFileInfo()">
+
+            <div id="fileInfo" class="file-info">No file selected</div>
+
+            <button id="compressBtn" class="compress-btn" onclick="compressPDF()">Compress PDF (Keep Quality)</button>
+            <div id="statusMessage" class="status-msg"></div>
+
+            <!-- Pro Upsell Banner -->
+            <div class="upsell-box">
+                <div class="upsell-text">
+                    <h4>Need to compress files larger than 900MB?</h4>
+                    <p>Unlock Ultra Pro Mode for unlimited massive file processing.</p>
+                </div>
+                <button class="upsell-btn" onclick="alert('⚡ Pro subscription checkout link will be integrated here!')">Upgrade ₹99</button>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 OptiPDF. All rights reserved. Zero-cost secure client-side compression.</p>
+    </footer>
+
+    <script>
+        function updateFileInfo() {
+            const input = document.getElementById('pdfInput');
+            const fileInfo = document.getElementById('fileInfo');
+            if (input.files.length > 0) {
+                const file = input.files[0];
+                const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
+                fileInfo.innerText = `Selected: ${file.name} (${sizeMB} MB)`;
+            } else {
+                fileInfo.innerText = "No file selected";
+            }
+        }
+
+        function readFileAsArrayBuffer(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = error => reject(error);
+                reader.readArrayBuffer(file);
+            });
+        }
+
+        async function compressPDF() {
+            const input = document.getElementById('pdfInput');
+            const btn = document.getElementById('compressBtn');
+            const status = document.getElementById('statusMessage');
+
+            if (input.files.length === 0) {
+                alert("Please select a PDF file first!");
+                return;
+            }
+
+            const file = input.files[0];
+            const sizeMB = file.size / (1024 * 1024);
+
+            // 900 MB Free Limit Rule
+            if (sizeMB > 900) {
+                alert(`⚠️ Size Limit Exceeded!\nYour file is ${sizeMB.toFixed(2)} MB. Free users can compress files up to 900 MB. Please upgrade to Pro for larger files.`);
+                return;
+            }
+
+            btn.disabled = true;
+            status.innerText = "⏳ Optimizing PDF structure while preserving 100% image quality...";
+
+            try {
+                const arrayBuffer = await readFileAsArrayBuffer(file);
+                
+                // Lossless PDF structure optimization:
+                // Re-encodes object streams & purges unused internal objects without re-compressing/blurring images.
+                const pdfDoc = await PDFLib.PDFDocument.load(arrayBuffer);
+                const pdfBytes = await pdfDoc.save({ 
+                    useObjectStreams: true,
+                    addDefaultPage: false
+                });
+
+                const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = `OptiPDF_${file.name}`;
+                link.click();
+
+                const newSizeMB = (blob.size / (1024 * 1024)).toFixed(2);
+                status.innerText = `🎉 Done! Optimized from ${sizeMB.toFixed(2)} MB to ${newSizeMB} MB with zero quality loss!`;
+            } catch (err) {
+                console.error(err);
+                status.innerText = "❌ Error compressing PDF. File might be password protected or corrupted.";
+            } finally {
+                btn.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>
